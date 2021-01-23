@@ -6,7 +6,7 @@
         {
             "label": "libdragon build",
             "type": "shell",
-            "command": "libdragon make",
+            "command": "cd ${workspaceFolder}; libdragon make",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -16,7 +16,7 @@
         {
             "label": "project64 run",
             "type": "shell",
-            "command": "./tools/Project64/Project64.exe ./game.z64",
+            "command": "${workspaceFolder}/tools/Project64/Project64.exe ${workspaceFolder}/game.z64",
             "problemMatcher": [],
             "group": {
                 "kind": "test",
