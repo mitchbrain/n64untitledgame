@@ -47,14 +47,14 @@ unsigned short getButtons(int pad)
     return (unsigned short)(gKeys.c[0].data >> 16);
 }
 
-unsigned char getAnalogX(int pad)
+signed getAnalogX(int pad)
 {
-    return (unsigned char)gKeys.c[pad].x;
+    return gKeys.c[pad].x;
 }
 
-unsigned char getAnalogY(int pad)
+signed getAnalogY(int pad)
 {
-    return (unsigned char)gKeys.c[pad].y;
+    return gKeys.c[pad].y;
 }
 
 display_context_t lockVideo(int wait)
@@ -113,104 +113,70 @@ void init_n64(void)
     controller_init();
 }
 
+void printDebug(display_context_t dc, char* msg, int x, int y)
+{
+	if (sizeof(msg) > 128)
+		return;
+
+	char temp[128];
+	sprintf(temp, "Debug msg: %s", msg);
+	printText(dc, temp, x, y);
+}
+
 /* main code entry point */
 int main(void)
 {
     display_context_t _dc;
-    char temp[128];
-	int res = 0;
-	unsigned short buttons, previous = 0;
+	int box_x = 20, box_y = 20; 
+	char temp[128];
 
     init_n64();
 
     while (1)
     {
-		int j;
-		int width[6] = { 320, 640, 256, 512, 512, 640 };
-		int height[6] = { 240, 480, 240, 480, 240, 240 };
-		unsigned int color;
-
         _dc = lockVideo(1);
-		color = graphics_make_color(0xCC, 0xCC, 0xCC, 0xFF);
-		graphics_fill_screen(_dc, color);
+		graphics_fill_screen(_dc, graphics_make_color(0,0,0,255));
 
-		color = graphics_make_color(0xFF, 0xFF, 0xFF, 0xFF);
-		//graphics_draw_line(_dc, 0, 0, width[res]-1, 0, color);
-		//graphics_draw_line(_dc, width[res]-1, 0, width[res]-1, height[res]-1, color);
-		//graphics_draw_line(_dc, width[res]-1, height[res]-1, 0, height[res]-1, color);
-		//graphics_draw_line(_dc, 0, height[res]-1, 0, 0, color);
+		getButtons(0);
 
-		//graphics_draw_line(_dc, 0, 0, width[res]-1, height[res]-1, color);
-		//graphics_draw_line(_dc, 0, height[res]-1, width[res]-1, 0, color);
+		signed y_input = getAnalogY(0);
+		signed x_input = getAnalogX(0);
 
-		color = graphics_make_color(0x00, 0x00, 0x00, 0xFF);
-		graphics_set_color(color, 0);
+		sprintf(temp, "Y input: %i", y_input);
+		printDebug(_dc, temp, 0, 0);
+		memset(temp, 0, sizeof(temp));
 
-        printText(_dc, "Video Resolution Test", width[res]/16 - 10, 3);
-		switch (res)
+		sprintf(temp, "X input: %i", x_input);
+		printDebug(_dc, temp, 0, 1);
+		memset(temp, 0, sizeof(temp));
+
+		if (y_input)
 		{
-			case 0:
-				printText(_dc, "320x240p", width[res]/16 - 3, 5);
-				break;
-			case 1:
-				printText(_dc, "640x480i", width[res]/16 - 3, 5);
-				break;
-			case 2:
-				printText(_dc, "256x240p", width[res]/16 - 3, 5); 
-				break;
-			case 3:
-				printText(_dc, "512x480i", width[res]/16 - 3, 5);
-				break;
-			case 4:
-				printText(_dc, "512x240p", width[res]/16 - 3, 5);
-				break;
-			case 5:
-				printText(_dc, "640x240p", width[res]/16 - 3, 5);
-				break;
-		}
-
-		for (j=0; j<8; j++)
-		{
-			sprintf(temp, "Line %d", j);
-			printText(_dc, temp, 3, j);
-			sprintf(temp, "Line %d", height[res]/8 - j - 1);
-			printText(_dc, temp, 3, height[res]/8 - j - 1);
-		}
-		printText(_dc, "0123456789", 0, 16);
-		printText(_dc, "9876543210", width[res]/8 - 10, 16);
-
-        unlockVideo(_dc);
-
-        while (1)
-        {
-            // wait for change in buttons
-            buttons = getButtons(0);
-            if (buttons ^ previous)
-                break;
-            delay(1);
-        }
-
-        if (A_BUTTON(buttons ^ previous))
-        {
-            // A changed
-            if (!A_BUTTON(buttons))
+			if (y_input > 0)
 			{
-				resolution_t mode[6] = {
-					RESOLUTION_320x240,
-					RESOLUTION_640x480,
-					RESOLUTION_256x240,
-					RESOLUTION_512x480,
-					RESOLUTION_512x240,
-					RESOLUTION_640x240,
-				};
-				res++;
-				res %= 6;
-				display_close();
-				display_init(mode[res], DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
+				box_y -= 1;
+			}
+			else
+			{
+				box_y += 1;
 			}
 		}
 
-        previous = buttons;
+		if (x_input)
+		{
+			if (x_input < 0)
+			{
+				box_x -= 1;
+			}
+			else
+			{
+				box_x += 1;
+			}
+		}
+
+		graphics_draw_box(_dc, box_x, box_y, 20, 20, graphics_make_color(255,0,0,255));
+        unlockVideo(_dc);
+
     }
 
     return 0;

@@ -1,0 +1,7 @@
+2021/01/23 15:28:10.042 12996,Error,GFX Plugin,LoadPlugin,Failed to load C:\Users\wes\n64untitledgame\tools\Project64\Plugin\GFX\Jabo_Direct3D8.dll
+2021/01/23 15:28:10.043 12996,Error,Audio Plugin,LoadPlugin,Failed to load C:\Users\wes\n64untitledgame\tools\Project64\Plugin\Audio\Jabo_Dsound.dll
+2021/01/23 15:28:10.043 12996,Error,RSP Plugin,LoadPlugin,Failed to load C:\Users\wes\n64untitledgame\tools\Project64\Plugin\RSP\RSP 1.7.dll
+2021/01/23 15:28:10.043 12996,Error,Controller Plugin,LoadPlugin,Failed to load C:\Users\wes\n64untitledgame\tools\Project64\Plugin\Input\PJ64_NRage.dll
+2021/01/23 15:28:10.106 12996,Error,N64 System,CN64Rom::AllocateAndLoadN64Image,Failed to open /mnt/c/Users/wes/n64untitledgame/game.z64
+2021/01/23 15:28:10.106 12996,Error,N64 System,CN64System::LoadFileImage,LoadN64Image failed ("/mnt/c/Users/wes/n64untitledgame/game.z64")
+2021/01/23 15:28:10.106 12996,Error,User Interface,CNotificationImp::DisplayError,
