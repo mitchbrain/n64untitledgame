@@ -135,13 +135,13 @@ int main(void)
 		graphics_fill_screen(_dc, color);
 
 		color = graphics_make_color(0xFF, 0xFF, 0xFF, 0xFF);
-		graphics_draw_line(_dc, 0, 0, width[res]-1, 0, color);
-		graphics_draw_line(_dc, width[res]-1, 0, width[res]-1, height[res]-1, color);
-		graphics_draw_line(_dc, width[res]-1, height[res]-1, 0, height[res]-1, color);
-		graphics_draw_line(_dc, 0, height[res]-1, 0, 0, color);
+		//graphics_draw_line(_dc, 0, 0, width[res]-1, 0, color);
+		//graphics_draw_line(_dc, width[res]-1, 0, width[res]-1, height[res]-1, color);
+		//graphics_draw_line(_dc, width[res]-1, height[res]-1, 0, height[res]-1, color);
+		//graphics_draw_line(_dc, 0, height[res]-1, 0, 0, color);
 
-		graphics_draw_line(_dc, 0, 0, width[res]-1, height[res]-1, color);
-		graphics_draw_line(_dc, 0, height[res]-1, width[res]-1, 0, color);
+		//graphics_draw_line(_dc, 0, 0, width[res]-1, height[res]-1, color);
+		//graphics_draw_line(_dc, 0, height[res]-1, width[res]-1, 0, color);
 
 		color = graphics_make_color(0x00, 0x00, 0x00, 0xFF);
 		graphics_set_color(color, 0);
@@ -156,7 +156,7 @@ int main(void)
 				printText(_dc, "640x480i", width[res]/16 - 3, 5);
 				break;
 			case 2:
-				printText(_dc, "256x240p", width[res]/16 - 3, 5);
+				printText(_dc, "256x240p", width[res]/16 - 3, 5); 
 				break;
 			case 3:
 				printText(_dc, "512x480i", width[res]/16 - 3, 5);
