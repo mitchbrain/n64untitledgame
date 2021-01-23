@@ -12,6 +12,16 @@
                 "kind": "build",
                 "isDefault": true
             }
-        }
+        },
+        {
+            "label": "project64 run",
+            "type": "shell",
+            "command": "./tools/Project64/Project64.exe ./game.z64",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }        
     ]
 }
