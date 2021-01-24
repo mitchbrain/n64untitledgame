@@ -25,16 +25,19 @@ endif
 
 OBJS = main.o
 
-$(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf
+$(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf game.dfs
 	$(OBJCOPY) $(PROG_NAME).elf $(PROG_NAME).bin -O binary
 	rm -f $(PROG_NAME)$(ROM_EXTENSION)
-	$(N64TOOL) $(N64_FLAGS) -t "Video Res Test" $(PROG_NAME).bin
+	$(N64TOOL) $(N64_FLAGS) -t "game" $(PROG_NAME).bin -s 1M game.dfs
 	$(CHKSUM64PATH) $(PROG_NAME)$(ROM_EXTENSION)
 
 $(PROG_NAME).elf : $(OBJS)
 	$(LD) -o $(PROG_NAME).elf $(OBJS) $(LINK_FLAGS)
 
+game.dfs:
+	$(MKDFSPATH) game.dfs ./filesystem/
+
 all: $(PROG_NAME)$(ROM_EXTENSION)
 
 clean:
-	rm -f *.v64 *.z64 *.elf *.o *.bin
+	rm -f *.v64 *.z64 *.elf *.o *.bin *.dfs
