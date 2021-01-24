@@ -5,32 +5,11 @@
 #include <stdint.h>
 #include <libdragon.h>
 
-/* hardware definitions */
-// Pad buttons
-#define A_BUTTON(a)     ((a) & 0x8000)
-#define B_BUTTON(a)     ((a) & 0x4000)
-#define Z_BUTTON(a)     ((a) & 0x2000)
-#define START_BUTTON(a) ((a) & 0x1000)
+//#include <ControllerInput.h>
 
-// D-Pad
-#define DU_BUTTON(a)    ((a) & 0x0800)
-#define DD_BUTTON(a)    ((a) & 0x0400)
-#define DL_BUTTON(a)    ((a) & 0x0200)
-#define DR_BUTTON(a)    ((a) & 0x0100)
+#define SENSITIVITY 2
 
-// Triggers
-#define TL_BUTTON(a)    ((a) & 0x0020)
-#define TR_BUTTON(a)    ((a) & 0x0010)
-
-// Yellow C buttons
-#define CU_BUTTON(a)    ((a) & 0x0008)
-#define CD_BUTTON(a)    ((a) & 0x0004)
-#define CL_BUTTON(a)    ((a) & 0x0002)
-#define CR_BUTTON(a)    ((a) & 0x0001)
-
-#define PAD_DEADZONE     5
-#define PAD_ACCELERATION 10
-#define PAD_CHECK_TIME   40
+#define DEBUG
 
 
 unsigned short gButtons = 0;
@@ -47,14 +26,14 @@ unsigned short getButtons(int pad)
     return (unsigned short)(gKeys.c[0].data >> 16);
 }
 
-signed getAnalogX(int pad)
+float getAnalogX(int pad)
 {
-    return gKeys.c[pad].x;
+    return gKeys.c[pad].x / 114;
 }
 
-signed getAnalogY(int pad)
+float getAnalogY(int pad)
 {
-    return gKeys.c[pad].y;
+    return gKeys.c[pad].y / 114;
 }
 
 display_context_t lockVideo(int wait)
@@ -128,7 +107,10 @@ int main(void)
 {
     display_context_t _dc;
 	int box_x = 20, box_y = 20; 
+
+#ifdef DEBUG
 	char temp[128];
+#endif
 
     init_n64();
 
@@ -139,39 +121,27 @@ int main(void)
 
 		getButtons(0);
 
-		signed y_input = getAnalogY(0);
-		signed x_input = getAnalogX(0);
+		float y_input = getAnalogY(0);
+		float x_input = getAnalogX(0);	
 
-		sprintf(temp, "Y input: %i", y_input);
+#ifdef DEBUG
+		sprintf(temp, "Y input: %f", y_input);
 		printDebug(_dc, temp, 0, 0);
 		memset(temp, 0, sizeof(temp));
 
-		sprintf(temp, "X input: %i", x_input);
+		sprintf(temp, "X input: %f", x_input);
 		printDebug(_dc, temp, 0, 1);
 		memset(temp, 0, sizeof(temp));
+#endif
 
-		if (y_input)
+		if (y_input != 0)
 		{
-			if (y_input > 0)
-			{
-				box_y -= 1;
-			}
-			else
-			{
-				box_y += 1;
-			}
+			box_y += -y_input * SENSITIVITY;
 		}
 
-		if (x_input)
+		if (x_input != 0)
 		{
-			if (x_input < 0)
-			{
-				box_x -= 1;
-			}
-			else
-			{
-				box_x += 1;
-			}
+			box_x += x_input * SENSITIVITY;
 		}
 
 		graphics_draw_box(_dc, box_x, box_y, 20, 20, graphics_make_color(255,0,0,255));

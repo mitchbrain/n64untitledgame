@@ -8,7 +8,8 @@ N64TOOL = $(ROOTDIR)/bin/n64tool
 HEADERNAME = header
 LINK_FLAGS = -L$(ROOTDIR)/mips64-elf/lib -ldragon -lc -lm -ldragonsys -Tn64.ld
 PROG_NAME = game
-CFLAGS = -std=gnu99 -march=vr4300 -mtune=vr4300 -Wall -Werror -I$(ROOTDIR)/mips64-elf/include
+PROJECT_INCLUDE = include
+CFLAGS = -std=gnu99 -march=vr4300 -mtune=vr4300 -Wall -Werror -I$(PROJECT_INCLUDE) -I$(ROOTDIR)/mips64-elf/include
 ASFLAGS = -mtune=vr4300 -march=vr4300
 CC = $(GCCN64PREFIX)gcc
 AS = $(GCCN64PREFIX)as
@@ -23,7 +24,7 @@ ROM_EXTENSION = .z64
 N64_FLAGS = -l 2M -h $(HEADERPATH)/$(HEADERNAME) -o $(PROG_NAME)$(ROM_EXTENSION)
 endif
 
-OBJS = main.o
+OBJS = main.o src/ControllerInput.o
 
 $(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf
 	$(OBJCOPY) $(PROG_NAME).elf $(PROG_NAME).bin -O binary
