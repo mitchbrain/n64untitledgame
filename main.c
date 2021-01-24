@@ -28,12 +28,13 @@ unsigned short getButtons(int pad)
 
 float getAnalogX(int pad)
 {
-    return gKeys.c[pad].x / 114;
+
+    return (float)gKeys.c[pad].x/114;
 }
 
 float getAnalogY(int pad)
 {
-    return gKeys.c[pad].y / 114;
+    return (float)gKeys.c[pad].y/114;
 }
 
 display_context_t lockVideo(int wait)
