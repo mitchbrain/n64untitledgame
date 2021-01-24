@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="80">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>bios.c</itemPath>
+      <itemPath>bios.h</itemPath>
+      <itemPath>gfx.c</itemPath>
+      <itemPath>gfx.h</itemPath>
+      <itemPath>incs.s</itemPath>
+      <itemPath>main.c</itemPath>
+      <itemPath>sys.c</itemPath>
+      <itemPath>sys.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+      <itemPath>ed64.ld</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>mips64|GCC</compilerSet>
+      </toolsSet>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE}</buildCommand>
+          <cleanCommand>${MAKE} clean</cleanCommand>
+          <executablePath>upload.bat</executablePath>
+        </makeTool>
+      </makefileType>
+    </conf>
+    <conf name="run" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>m68k-6.3.0|MinGW</compilerSet>
+      </toolsSet>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE}</buildCommand>
+          <cleanCommand>${MAKE} clean</cleanCommand>
+          <executablePath>usb.bat</executablePath>
+          <cTool>
+            <incDir>
+              <pElem>../../../devtools/mips64/include</pElem>
+              <pElem>../../../devtools/mips64/libdragon/include</pElem>
+              <pElem>../../../devtools/mips64/mips64-elf/include</pElem>
+              <pElem>../../../devtools/mips64/lib/gcc/mips64-elf/4.4.0/include</pElem>
+              <pElem>.</pElem>
+            </incDir>
+          </cTool>
+        </makeTool>
+      </makefileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

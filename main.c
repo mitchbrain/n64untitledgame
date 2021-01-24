@@ -5,32 +5,11 @@
 #include <stdint.h>
 #include <libdragon.h>
 
-/* hardware definitions */
-// Pad buttons
-#define A_BUTTON(a)     ((a) & 0x8000)
-#define B_BUTTON(a)     ((a) & 0x4000)
-#define Z_BUTTON(a)     ((a) & 0x2000)
-#define START_BUTTON(a) ((a) & 0x1000)
+//#include <ControllerInput.h>
 
-// D-Pad
-#define DU_BUTTON(a)    ((a) & 0x0800)
-#define DD_BUTTON(a)    ((a) & 0x0400)
-#define DL_BUTTON(a)    ((a) & 0x0200)
-#define DR_BUTTON(a)    ((a) & 0x0100)
+#define SENSITIVITY 2
 
-// Triggers
-#define TL_BUTTON(a)    ((a) & 0x0020)
-#define TR_BUTTON(a)    ((a) & 0x0010)
-
-// Yellow C buttons
-#define CU_BUTTON(a)    ((a) & 0x0008)
-#define CD_BUTTON(a)    ((a) & 0x0004)
-#define CL_BUTTON(a)    ((a) & 0x0002)
-#define CR_BUTTON(a)    ((a) & 0x0001)
-
-#define PAD_DEADZONE     5
-#define PAD_ACCELERATION 10
-#define PAD_CHECK_TIME   40
+#define DEBUG
 
 
 unsigned short gButtons = 0;
@@ -47,14 +26,15 @@ unsigned short getButtons(int pad)
     return (unsigned short)(gKeys.c[0].data >> 16);
 }
 
-unsigned char getAnalogX(int pad)
+float getAnalogX(int pad)
 {
-    return (unsigned char)gKeys.c[pad].x;
+
+    return (float)gKeys.c[pad].x/114;
 }
 
-unsigned char getAnalogY(int pad)
+float getAnalogY(int pad)
 {
-    return (unsigned char)gKeys.c[pad].y;
+    return (float)gKeys.c[pad].y/114;
 }
 
 display_context_t lockVideo(int wait)
@@ -113,105 +93,94 @@ void init_n64(void)
     controller_init();
 }
 
+void printDebug(display_context_t dc, char* msg, int x, int y)
+{
+	if (sizeof(msg) > 128)
+		return;
+
+	char temp[128];
+	sprintf(temp, "Debug msg: %s", msg);
+	printText(dc, temp, x, y);
+}
+
 /* main code entry point */
 int main(void)
 {
-    display_context_t _dc;
-    char temp[128];
-	int res = 0;
-	unsigned short buttons, previous = 0;
+    /* enable interrupts (on the CPU) */
+    init_interrupts();
 
-    init_n64();
+    /* Initialize peripherals */
+    display_init( RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE );
+    dfs_init( DFS_DEFAULT_LOCATION );
+    rdp_init();
+    controller_init();
+    timer_init();
 
-    while (1)
+    /* Read in single sprite */
+
+    int fp = dfs_open("/face.sprite");
+    sprite_t *face = malloc( dfs_size( fp ) );
+    dfs_read( face, 1, dfs_size( fp ), fp );
+    dfs_close( fp );
+
+    #ifdef DEBUG
+        char temp[128];
+    #endif
+    
+    int box_x = 20, box_y = 20;
+
+    while(1) 
     {
-		int j;
-		int width[6] = { 320, 640, 256, 512, 512, 640 };
-		int height[6] = { 240, 480, 240, 480, 240, 240 };
-		unsigned int color;
 
-        _dc = lockVideo(1);
-		color = graphics_make_color(0xCC, 0xCC, 0xCC, 0xFF);
-		graphics_fill_screen(_dc, color);
 
-		color = graphics_make_color(0xFF, 0xFF, 0xFF, 0xFF);
-		graphics_draw_line(_dc, 0, 0, width[res]-1, 0, color);
-		graphics_draw_line(_dc, width[res]-1, 0, width[res]-1, height[res]-1, color);
-		graphics_draw_line(_dc, width[res]-1, height[res]-1, 0, height[res]-1, color);
-		graphics_draw_line(_dc, 0, height[res]-1, 0, 0, color);
+        static display_context_t _dc = 0;
 
-		graphics_draw_line(_dc, 0, 0, width[res]-1, height[res]-1, color);
-		graphics_draw_line(_dc, 0, height[res]-1, width[res]-1, 0, color);
+        /* Grab a render buffer */
+        while( !(_dc = display_lock()) );
+       
+        /*Fill the screen */
+        graphics_fill_screen( _dc, 0xFFFFFFFF );
 
-		color = graphics_make_color(0x00, 0x00, 0x00, 0xFF);
-		graphics_set_color(color, 0);
+        /* Set the text output color */
+        graphics_set_color( 0x0, 0xFFFFFFFF );
 
-        printText(_dc, "Video Resolution Test", width[res]/16 - 10, 3);
-		switch (res)
+        controller_scan();        
+        getButtons(0);
+
+		float y_input[4] = {getAnalogY(0), getAnalogY(1), getAnalogY(2), getAnalogY(3)};
+		float x_input[4] = {getAnalogX(0), getAnalogX(1), getAnalogX(2), getAnalogX(3)};	
+
+
+#ifdef DEBUG
+		sprintf(temp, "Y0: %f, X0: %f", y_input[0], x_input[0]);
+		printDebug(_dc, temp, 0, 0);
+		memset(temp, 0, sizeof(temp));
+
+		sprintf(temp, "Y1: %f, X1: %f", y_input[1], x_input[1]);
+		printDebug(_dc, temp, 0, 1);
+		memset(temp, 0, sizeof(temp));		
+        
+		sprintf(temp, "Y2: %f, X2: %f", y_input[2], x_input[2]);
+		printDebug(_dc, temp, 0, 2);
+		memset(temp, 0, sizeof(temp));
+
+		sprintf(temp, "Y3: %f, X3: %f", y_input[3], x_input[3]);
+		printDebug(_dc, temp, 0, 3);
+		memset(temp, 0, sizeof(temp));
+#endif
+
+		if (y_input != 0)
 		{
-			case 0:
-				printText(_dc, "320x240p", width[res]/16 - 3, 5);
-				break;
-			case 1:
-				printText(_dc, "640x480i", width[res]/16 - 3, 5);
-				break;
-			case 2:
-				printText(_dc, "256x240p", width[res]/16 - 3, 5);
-				break;
-			case 3:
-				printText(_dc, "512x480i", width[res]/16 - 3, 5);
-				break;
-			case 4:
-				printText(_dc, "512x240p", width[res]/16 - 3, 5);
-				break;
-			case 5:
-				printText(_dc, "640x240p", width[res]/16 - 3, 5);
-				break;
+			box_y += -y_input[0] * SENSITIVITY;
 		}
 
-		for (j=0; j<8; j++)
+		if (x_input != 0)
 		{
-			sprintf(temp, "Line %d", j);
-			printText(_dc, temp, 3, j);
-			sprintf(temp, "Line %d", height[res]/8 - j - 1);
-			printText(_dc, temp, 3, height[res]/8 - j - 1);
+			box_x += x_input[0] * SENSITIVITY;
 		}
-		printText(_dc, "0123456789", 0, 16);
-		printText(_dc, "9876543210", width[res]/8 - 10, 16);
+        graphics_draw_sprite_trans( _dc, box_x, box_y, face );
 
-        unlockVideo(_dc);
-
-        while (1)
-        {
-            // wait for change in buttons
-            buttons = getButtons(0);
-            if (buttons ^ previous)
-                break;
-            delay(1);
-        }
-
-        if (A_BUTTON(buttons ^ previous))
-        {
-            // A changed
-            if (!A_BUTTON(buttons))
-			{
-				resolution_t mode[6] = {
-					RESOLUTION_320x240,
-					RESOLUTION_640x480,
-					RESOLUTION_256x240,
-					RESOLUTION_512x480,
-					RESOLUTION_512x240,
-					RESOLUTION_640x240,
-				};
-				res++;
-				res %= 6;
-				display_close();
-				display_init(mode[res], DEPTH_16_BPP, 2, GAMMA_NONE, ANTIALIAS_RESAMPLE);
-			}
-		}
-
-        previous = buttons;
+        /* Force backbuffer flip */
+        display_show(_dc);
     }
-
-    return 0;
 }
