@@ -111,22 +111,22 @@ sprite_t* loadSprite(char* spritePath){
     return outsprite;
 }
 
-void fillScreen(display_context_t dc, sprite_t* worldSprite){
-    for(int x = 0; x<320; x+=worldSprite->width){
+void fillScreen(display_context_t dc, sprite_t* worldSprite, int offset){
+    for(int x = offset; x<320+worldSprite->width; x+=worldSprite->width){
         for(int y = 0; y<240; y+=worldSprite->height){
             graphics_draw_sprite_trans( dc, x, y, worldSprite);
         }        
     }
 }
 
-typedef struct{
+/*typedef struct{
     x,
     y
 }velocity;
 
 void jump(velocity* current){
     *current->x = *current->x+50;
-}
+}*/
 
 /* main code entry point */
 int main(void)
@@ -151,7 +151,7 @@ int main(void)
         char temp[128];
     #endif
     
-    int box_x = 20, box_y = 20;
+    int box_x = 20, box_y = 20, backgroundx=0;
 
     while(1) 
     {
@@ -193,6 +193,7 @@ int main(void)
 		memset(temp, 0, sizeof(temp));
 #endif
 
+
 		if (y_input != 0)
 		{
 			box_y += -y_input[0] * SENSITIVITY;
@@ -201,8 +202,9 @@ int main(void)
 		if (x_input != 0)
 		{
 			box_x += x_input[0] * SENSITIVITY;
+            backgroundx-=x_input[0] * SENSITIVITY;
 		}
-        fillScreen( _dc, underworld );
+        fillScreen( _dc, underworld,  backgroundx);
         graphics_draw_sprite_trans( _dc, box_x, box_y, face );
 
         /* Force backbuffer flip */
