@@ -103,6 +103,31 @@ void printDebug(display_context_t dc, char* msg, int x, int y)
 	printText(dc, temp, x, y);
 }
 
+sprite_t* loadSprite(char* spritePath){
+    int fp = dfs_open(spritePath);
+    sprite_t* outsprite = malloc( dfs_size( fp ) );
+    dfs_read( outsprite, 1, dfs_size( fp ), fp );
+    dfs_close( fp );
+    return outsprite;
+}
+
+void fillScreen(display_context_t dc, sprite_t* worldSprite){
+    for(int x = 0; x<320; x+=worldSprite->width){
+        for(int y = 0; y<240; y+=worldSprite->height){
+            graphics_draw_sprite_trans( dc, x, y, worldSprite);
+        }        
+    }
+}
+
+typedef struct{
+    x,
+    y
+}velocity;
+
+void jump(velocity* current){
+    *current->x = *current->x+50;
+}
+
 /* main code entry point */
 int main(void)
 {
@@ -116,12 +141,11 @@ int main(void)
     controller_init();
     timer_init();
 
-    /* Read in single sprite */
+    /* Read in face sprite */
+    sprite_t* face = loadSprite("/face.sprite");
 
-    int fp = dfs_open("/face.sprite");
-    sprite_t *face = malloc( dfs_size( fp ) );
-    dfs_read( face, 1, dfs_size( fp ), fp );
-    dfs_close( fp );
+    /* Read the world sprite */
+    sprite_t* underworld = loadSprite("/underworld.sprite");
 
     #ifdef DEBUG
         char temp[128];
@@ -178,6 +202,7 @@ int main(void)
 		{
 			box_x += x_input[0] * SENSITIVITY;
 		}
+        fillScreen( _dc, underworld );
         graphics_draw_sprite_trans( _dc, box_x, box_y, face );
 
         /* Force backbuffer flip */
