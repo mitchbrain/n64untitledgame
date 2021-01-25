@@ -8,6 +8,9 @@
             "type": "shell",
             "command": "cd ${workspaceFolder}; libdragon make",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -16,8 +19,15 @@
         {
             "label": "cen64 run",
             "type": "shell",
+<<<<<<< HEAD
+            "command": "/mnt/c/Windows/System32/cmd.exe /c cen64-windows.exe pifdata.bin ../../game.z64",
+=======
             "command": "${workspaceFolder}/tools/cen64/cen64-windows-x86_64.exe ${workspaceFolder}/tools/cen64/pifdata.bin ${workspaceFolder}/game.z64",
+>>>>>>> main
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}/tools/cen64/"
+            },
             "group": {
                 "kind": "test",
                 "isDefault": true
