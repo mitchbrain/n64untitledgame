@@ -16,7 +16,7 @@
         {
             "label": "cen64 run",
             "type": "shell",
-            "command": "${workspaceFolder}/tools/cen64/cen64-windows-x86_64.exe ${workspaceFolder}/tools/cen64/pifdata.bin ${workspaceFolder}/game.z64",
+            "command": "/mnt/c/Windows/System32/cmd.exe /c cen64-windows.exe pifdata.bin ../../game.z64",
             "problemMatcher": [],
             "group": {
                 "kind": "test",
