@@ -7,7 +7,7 @@
 
 //#include <ControllerInput.h>
 
-#define SENSITIVITY 2
+#define SENSITIVITY 3
 
 #define DEBUG
 
@@ -28,6 +28,7 @@ unsigned short getButtons(int pad)
 
 float getAnalogX(int pad)
 {
+
     return (float)gKeys.c[pad].x/114;
 }
 
@@ -102,15 +103,34 @@ void printDebug(display_context_t dc, char* msg, int x, int y)
 	printText(dc, temp, x, y);
 }
 
+sprite_t* loadSprite(char* spritePath){
+    int fp = dfs_open(spritePath);
+    sprite_t* outsprite = malloc( dfs_size( fp ) );
+    dfs_read( outsprite, 1, dfs_size( fp ), fp );
+    dfs_close( fp );
+    return outsprite;
+}
+
+void fillScreen(display_context_t dc, sprite_t* worldSprite, int offset){
+    for(int x = offset; x<320+worldSprite->width; x+=worldSprite->width){
+        for(int y = 0; y<240; y+=worldSprite->height){
+            graphics_draw_sprite_trans( dc, x, y, worldSprite);
+        }        
+    }
+}
+
+/*typedef struct{
+    x,
+    y
+}velocity;
+
+void jump(velocity* current){
+    *current->x = *current->x+50;
+}*/
+
 /* main code entry point */
 int main(void)
 {
-    display_context_t _dc;
-	int box_x = 20, box_y = 20; 
-
-#ifdef DEBUG
-	char temp[128];
-#endif
     /* enable interrupts (on the CPU) */
     init_interrupts();
 
@@ -121,38 +141,39 @@ int main(void)
     controller_init();
     timer_init();
 
-    /* Read in single sprite */
+    /* Read in face sprite */
+    sprite_t* face = loadSprite("/face.sprite");
 
-    int fp = dfs_open("/face.sprite");
-    sprite_t *face = malloc( dfs_size( fp ) );
-    dfs_read( face, 1, dfs_size( fp ), fp );
-    dfs_close( fp );
+    /* Read the world sprite */
+    sprite_t* underworld = loadSprite("/underworld.sprite");
 
-    float y_input[4] = {0,0,0,0};
-    float x_input[4] = {0,0,0,0};	
-
-    const float gravity_const = 1;
+    #ifdef DEBUG
+        char temp[128];
+    #endif
+    
+    int box_x = 20, box_y = 20, backgroundx=0;
 
     while(1) 
     {
-        _dc = lockVideo(1);
-		graphics_fill_screen(_dc, graphics_make_color(0,0,0,255));
 
-		getButtons(0);
 
-		y_input[0] = getAnalogY(0);
-		x_input[0] = getAnalogX(0);	
+        static display_context_t _dc = 0;
 
-		y_input[1] = getAnalogY(1);
-		x_input[1] = getAnalogX(1);	
+        /* Grab a render buffer */
+        while( !(_dc = display_lock()) );
+       
+        /*Fill the screen */
+        graphics_fill_screen( _dc, 0xFFFFFFFF );
 
-		y_input[2] = getAnalogY(2);
-		x_input[2] = getAnalogX(2);	
+        /* Set the text output color */
+        graphics_set_color( 0x0, 0xFFFFFFFF );
 
-		y_input[3] = getAnalogY(3);
-		x_input[3] = getAnalogX(3);	
+        controller_scan();        
+        getButtons(0);
 
-        graphics_draw_line(_dc,0, (240/2), 340, (240/2), graphics_make_color(255, 0, 0, 255));
+		float y_input[4] = {getAnalogY(0), getAnalogY(1), getAnalogY(2), getAnalogY(3)};
+		float x_input[4] = {getAnalogX(0), getAnalogX(1), getAnalogX(2), getAnalogX(3)};	
+
 
 #ifdef DEBUG
 		sprintf(temp, "Y0: %f, X0: %f", y_input[0], x_input[0]);
@@ -172,25 +193,18 @@ int main(void)
 		memset(temp, 0, sizeof(temp));
 #endif
 
-        for (int i = 0; i !=1; i++)
-        {
-            if (y_input[i] != 0)
-            {
-                box_y += -y_input[i] * SENSITIVITY;
-            }
 
-            if (x_input != 0)
-            {
-                box_x += x_input[i] * SENSITIVITY;
-            }
-        }
-        
-        if (box_y <= (120 - face->height))
-            box_y += gravity_const;
+		if (y_input != 0)
+		{
+			box_y += -y_input[0] * SENSITIVITY;
+		}
 
-
-        unlockVideo(_dc);
-
+		if (x_input != 0)
+		{
+			box_x += x_input[0] * SENSITIVITY;
+            backgroundx-=x_input[0] * SENSITIVITY;
+		}
+        fillScreen( _dc, underworld,  backgroundx);
         graphics_draw_sprite_trans( _dc, box_x, box_y, face );
 
         /* Force backbuffer flip */
