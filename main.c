@@ -7,7 +7,7 @@
 
 //#include <ControllerInput.h>
 
-#define SENSITIVITY 2
+#define SENSITIVITY 3
 
 #define DEBUG
 
