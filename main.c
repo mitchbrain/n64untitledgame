@@ -5,37 +5,16 @@
 #include <stdint.h>
 #include <libdragon.h>
 
-//#include <ControllerInput.h>
+#include "ControllerInput.h"
 
 #define SENSITIVITY 3
 
 #define DEBUG
 
 
-unsigned short gButtons = 0;
 struct controller_data gKeys;
 
 volatile int gTicks;                    /* incremented every vblank */
-
-/* input - do getButtons() first, then getAnalogX() and/or getAnalogY() */
-unsigned short getButtons(int pad)
-{
-    // Read current controller status
-    controller_scan();
-    gKeys = get_keys_pressed();
-    return (unsigned short)(gKeys.c[0].data >> 16);
-}
-
-float getAnalogX(int pad)
-{
-
-    return (float)gKeys.c[pad].x/114;
-}
-
-float getAnalogY(int pad)
-{
-    return (float)gKeys.c[pad].y/114;
-}
 
 display_context_t lockVideo(int wait)
 {

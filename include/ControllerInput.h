@@ -6,11 +6,15 @@
 #include <libdragon.h>
 
 
-void HandleInput();
+unsigned short getButtons(int pad);
+
+float getAnalogX(int pad);
+
+float getAnalogY(int pad);
 
 void ControllerInput();
 
-void playerOneGetInput();
+void controllerTick();
 
 
 #endif
