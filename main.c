@@ -6,6 +6,7 @@
 #include <libdragon.h>
 
 #include "ControllerInput.h"
+#include "Player.h"
 
 #define SENSITIVITY 3
 
