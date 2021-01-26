@@ -24,7 +24,7 @@ ROM_EXTENSION = .z64
 N64_FLAGS = -l 2M -h $(HEADERPATH)/$(HEADERNAME) -o $(PROG_NAME)$(ROM_EXTENSION)
 endif
 
-OBJS = main.o src/ControllerInput.o
+OBJS = main.o src/ControllerInput.o src/Player.o src/Render.o
 
 $(PROG_NAME)$(ROM_EXTENSION): $(PROG_NAME).elf game.dfs
 	$(OBJCOPY) $(PROG_NAME).elf $(PROG_NAME).bin -O binary

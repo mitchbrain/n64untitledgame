@@ -7,6 +7,7 @@
 
 #include "ControllerInput.h"
 #include "Player.h"
+#include "Render.h"
 
 #define SENSITIVITY 3
 
@@ -16,36 +17,6 @@
 struct controller_data gKeys;
 
 volatile int gTicks;                    /* incremented every vblank */
-
-display_context_t lockVideo(int wait)
-{
-    display_context_t dc;
-
-    if (wait)
-        while (!(dc = display_lock()));
-    else
-        dc = display_lock();
-    return dc;
-}
-
-void unlockVideo(display_context_t dc)
-{
-    if (dc)
-        display_show(dc);
-}
-
-/* text functions */
-void drawText(display_context_t dc, char *msg, int x, int y)
-{
-    if (dc)
-        graphics_draw_text(dc, x, y, msg);
-}
-
-void printText(display_context_t dc, char *msg, int x, int y)
-{
-    if (dc)
-        graphics_draw_text(dc, x*8, y*8, msg);
-}
 
 /* vblank callback */
 void vblCallback(void)
@@ -71,32 +42,6 @@ void init_n64(void)
     register_VI_handler(vblCallback);
 
     controller_init();
-}
-
-void printDebug(display_context_t dc, char* msg, int x, int y)
-{
-	if (sizeof(msg) > 128)
-		return;
-
-	char temp[128];
-	sprintf(temp, "Debug msg: %s", msg);
-	printText(dc, temp, x, y);
-}
-
-sprite_t* loadSprite(char* spritePath){
-    int fp = dfs_open(spritePath);
-    sprite_t* outsprite = malloc( dfs_size( fp ) );
-    dfs_read( outsprite, 1, dfs_size( fp ), fp );
-    dfs_close( fp );
-    return outsprite;
-}
-
-void fillScreen(display_context_t dc, sprite_t* worldSprite, int offset){
-    for(int x = offset; x<320+worldSprite->width; x+=worldSprite->width){
-        for(int y = 0; y<240; y+=worldSprite->height){
-            graphics_draw_sprite_trans( dc, x, y, worldSprite);
-        }        
-    }
 }
 
 /*typedef struct{
